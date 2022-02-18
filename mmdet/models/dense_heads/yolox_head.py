@@ -9,6 +9,7 @@ from mmcv.ops.nms import batched_nms
 
 from mmdet.core import (MlvlPointGenerator, bbox_xyxy_to_cxcywh,
                         build_assigner, build_sampler, multi_apply)
+from mmcv.runner import force_fp32
 from ..builder import HEADS, build_loss
 from .base_dense_head import BaseDenseHead
 from .dense_test_mixins import BBoxTestMixin
@@ -120,7 +121,7 @@ class YOLOXHead(BaseDenseHead, BBoxTestMixin):
             # sampling=False so use PseudoSampler
             sampler_cfg = dict(type='PseudoSampler')
             self.sampler = build_sampler(sampler_cfg, context=self)
-
+        self.fp16_enabled = False
         self._init_layers()
 
     def _init_layers(self):
@@ -312,7 +313,8 @@ class YOLOXHead(BaseDenseHead, BBoxTestMixin):
         else:
             dets, keep = batched_nms(bboxes, scores, labels, cfg.nms)
             return dets, labels[keep]
-
+            
+    @force_fp32(apply_to=('cls_scores', 'bbox_preds', 'objectnesses'))
     def loss(self,
              cls_scores,
              bbox_preds,

@@ -139,8 +139,8 @@ def imshow_det_bboxes(img,
         color.append(bbox_color)
         label_text = class_names[
             label] if class_names is not None else f'class {label}'
-        from IPython import embed
-        embed()
+        # from IPython import embed
+        # embed()
         if len(bbox) > 4:
             label_text += f'|{bbox[-1]:.02f}'
         ax.text(
